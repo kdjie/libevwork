@@ -13,7 +13,7 @@ LINKFLAGS_EXTERN =
 TARGET   = libevwork.a
 TARGET_R   = libevwork.ra
 
-SRC_FILES   = $(wildcard *.cpp yymfc/*.cpp jsmfc/*.cpp pbmfc/*.cpp dsmfc/*.cpp)
+SRC_FILES   = $(wildcard *.cpp jsmfc/*.cpp pbmfc/*.cpp dsmfc/*.cpp)
 
 OBJ_FILES   = $(SRC_FILES:.cpp=.o)
 OBJ_FILES_R   = $(SRC_FILES:.cpp=.ro)
