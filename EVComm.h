@@ -61,6 +61,9 @@ namespace evwork
 
 		virtual void onConnected(IConn* pConn) = 0;
 		virtual void onClose(IConn* pConn) = 0;
+
+		virtual void addLE(ILinkEvent* p) {};
+		virtual void delLE(ILinkEvent* p) {};
 	};
 
 	// 数据事件

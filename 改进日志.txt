@@ -2,3 +2,4 @@
 2018.7.13 #define LOG(l,f,...) CEnv::getThreadEnv()->getLogger()->log(l, f, ##__VA_ARGS__)
 2018.8.7 加入dsmfc类yy序列化/反序列化支持。
 2019.4.9 加入日志级别可限制，避免日志过多造成rsyslog丢失。加入可输出到终端。
+2019.6.4 为CClientConn增加读事件可控，用于需要精确控制连接的场合。

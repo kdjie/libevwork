@@ -29,6 +29,10 @@ namespace evwork
 
 		void setSpecialDE(IDataEvent* pDE);
 
+		// 读写事件控制（慎用）
+		void startRead();
+		void stopRead();
+
 	private:
 
 		void __noblock();

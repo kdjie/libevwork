@@ -113,6 +113,16 @@ void CClientConn::setSpecialDE(IDataEvent* pDE)
 	m_pDE_Special = pDE;
 }
 
+// 读写事件控制（慎用）
+void CClientConn::startRead()
+{
+	CEnv::getThreadEnv()->getEVLoop()->setHandle(&m_hRead);
+}
+void CClientConn::stopRead()
+{
+	CEnv::getThreadEnv()->getEVLoop()->delHandle(&m_hRead);
+}
+
 void CClientConn::getPeerInfo(std::string& strPeerIp, uint16_t& uPeerPort16)
 {
 	strPeerIp = m_strPeerIp;

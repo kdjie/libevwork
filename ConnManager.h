@@ -29,8 +29,8 @@ namespace evwork
 		virtual void onConnected(IConn* pConn);
 		virtual void onClose(IConn* pConn);
 
-		void addLE(ILinkEvent* p);
-		void delLE(ILinkEvent* p);
+		virtual void addLE(ILinkEvent* p);
+		virtual void delLE(ILinkEvent* p);
 
 	private:
 
