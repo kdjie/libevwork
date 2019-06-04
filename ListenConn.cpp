@@ -138,13 +138,13 @@ void CListenConn::cbAccept(int revents)
 		std::string strIpFrom = inet_ntoa(*(struct in_addr*)&sinfrom.sin_addr);
 		uint16_t uPortFrom = ntohs(sinfrom.sin_port);
 
+		LOG(Info, "[CListenConn::%s] accept client[%u]: %s:%u", __FUNCTION__, fdClient, strIpFrom.c_str(), uPortFrom);
+
 		CClientConn* pNew = new CClientConn(fdClient, strIpFrom, uPortFrom);
 
 		if (m_pDE_Special)
 		{
 			pNew->setSpecialDE(m_pDE_Special);
 		}
-
-		LOG(Info, "[CListenConn::%s] accept client[%u]: %s:%u", __FUNCTION__, fdClient, strIpFrom.c_str(), uPortFrom);
 	}
 }
