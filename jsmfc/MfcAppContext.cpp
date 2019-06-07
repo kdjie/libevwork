@@ -46,7 +46,7 @@ void CMfcAppContext::RequestDispatch(Request& request, evwork::IConn* pConn)
 	}
 
 	CFromHandle objFromHandler;
-	Json::Value* pValue = objFromHandler.handlePacket(request);
+	Json::Value* pValue = objFromHandler.handlePacket(request.Body(), request.BodySize());
 
 	FormEntry* pEntry = iter->second;
 

@@ -34,7 +34,8 @@ namespace ds
 		Sender(DS_URI_TYPE uri, const Marshallable &obj)
 			: m_pb(), m_hpk(m_pb), m_pk(m_pb, DS_HEADER_SIZE)
 		{
-			Marshall(uri, obj);
+			m_uUri = uri;
+			obj.Marshal(m_pk);
 		}
 
 		Sender(DS_URI_TYPE uri, const std::string& str)
@@ -44,7 +45,6 @@ namespace ds
 			m_pk.Push(str.data(), str.size());
 		}
 
-
 		Sender(DS_URI_TYPE uri, const char* data, size_t size)
 			: m_pb(), m_hpk(m_pb), m_pk(m_pb, DS_HEADER_SIZE)
 		{
@@ -52,15 +52,11 @@ namespace ds
 			m_pk.Push(data, size);
 		}
 
-		void Marshall(DS_URI_TYPE uri, const Marshallable &obj)
-		{
-			m_uUri = uri;
-			obj.Marshal(m_pk);
-		}
-
 		void EndPack()
 		{
-			m_hpk.Replace_uint32(0, (uint32_t)(DS_HEADER_SIZE + m_pk.Size()));
+			m_uLen = (uint32_t)(DS_HEADER_SIZE + m_pk.Size());
+
+			m_hpk.Replace_uint32(0, m_uLen);
 			m_hpk.Replace_uint32(4, m_uUri);
 			m_hpk.Replace_uint16(8, m_uCode);
 		}

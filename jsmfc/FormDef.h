@@ -56,12 +56,12 @@ namespace js
 	{
 	public:
 		virtual ~CFromHandle() {}
-		virtual Json::Value* handlePacket(Request& req)
+		virtual Json::Value* handlePacket(const char* pData, uint32_t uSize)
 		{
 			std::auto_ptr<Json::Value> obj(new Json::Value());
 			
 			Json::Reader reader;
-			reader.parse(req.Body(), req.Body() + req.BodySize(), *obj);
+			reader.parse(pData, pData + uSize, *obj);
 
 			return obj.release();
 		}
