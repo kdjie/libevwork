@@ -38,7 +38,7 @@ void CMfcAppContext::addEntry(FormEntry* pEntry, void* pTarget)
 
 void CMfcAppContext::RequestDispatch(Request& request, evwork::IConn* pConn)
 {
-	ENTRY_MAP_t::iterator iter = m_mapEntry.find(request.getCmd());
+	MAP_ENTRY_t::iterator iter = m_mapEntry.find(request.getCmd());
 	if (iter == m_mapEntry.end())
 	{
 		DefaultDispatch(request, pConn);

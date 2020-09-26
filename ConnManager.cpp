@@ -14,7 +14,7 @@
 using namespace evwork;
 
 CConnManager::CConnManager()
-: m_uLastConnId(1)
+: m_uNextConnId(1)
 {
 }
 CConnManager::~CConnManager()
@@ -46,11 +46,11 @@ IConn* CConnManager::getConnByIpPort(const std::string& strIp, uint16_t uPort)
 
 void CConnManager::onConnected(IConn* pConn)
 {
-	pConn->setcid(m_uLastConnId);
+	pConn->setcid(m_uNextConnId);
 
-	m_mapCIdConn[m_uLastConnId] = pConn;
+	m_mapCIdConn[m_uNextConnId] = pConn;
 
-	m_uLastConnId++;
+	m_uNextConnId++;
 
 	__notifyLEConnected(pConn);
 }

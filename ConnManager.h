@@ -40,7 +40,7 @@ namespace evwork
 		std::string __toIpPortKey(const std::string& strIp, uint16_t uPort);
 
 	protected:
-		uint32_t m_uLastConnId;
+		uint32_t m_uNextConnId;
 
 		std::map<uint32_t, IConn*> m_mapCIdConn;
 		std::map<std::string, IConn*> m_mapIpPortConn;

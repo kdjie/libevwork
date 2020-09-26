@@ -30,9 +30,9 @@ namespace pb
 		virtual void DefaultDispatch(Request& request, evwork::IConn* pConn);
 
 	protected:
-		typedef std::tr1::unordered_map<PB_CMD_TYPE, FormEntry*> ENTRY_MAP_t;
+		typedef std::tr1::unordered_map<PB_CMD_TYPE, FormEntry*> MAP_ENTRY_t;
 
-		ENTRY_MAP_t m_mapEntry;
+		MAP_ENTRY_t m_mapEntry;
 	};
 
 }
