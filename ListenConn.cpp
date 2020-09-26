@@ -9,6 +9,7 @@
 #include "ListenConn.h"
 
 #include "EVWork.h"
+#include "ClientConn.h"
 
 using namespace evwork;
 
@@ -115,7 +116,7 @@ void CListenConn::__listen()
 	}
 }
 
-void CListenConn::cbAccept(int revents)
+void CListenConn::__cbAccept(int revents)
 {
 	while (true)
 	{

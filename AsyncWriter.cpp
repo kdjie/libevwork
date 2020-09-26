@@ -108,7 +108,7 @@ void CAsyncWriter::__onRead()
 	}
 }
 
-bool CAsyncWriter::__onHandlerFlush()
+bool CAsyncWriter::__cbTimerFlush()
 {
 	__flushReal();
 

@@ -23,8 +23,6 @@ CClientConn::CClientConn(const std::string& strPeerIp, uint16_t uPeerPort16)
 , m_bConnected(false)
 , m_Input(8*1024, 1)
 , m_Output(8*1024, 1)
-, m_bTimerNoDataStart(false)
-, m_bTimerDestroyStart(false)
 , m_hRead(this)
 , m_hWrite(this)
 , m_pDE_Special(NULL)
@@ -59,8 +57,6 @@ CClientConn::CClientConn(int fd, const std::string& strPeerIp, uint16_t uPeerPor
 , m_bConnected(true)
 , m_Input(8*1024, 1)
 , m_Output(8*1024, 1)
-, m_bTimerNoDataStart(false)
-, m_bTimerDestroyStart(false)
 , m_hRead(this)
 , m_hWrite(this)
 , m_pDE_Special(NULL)
@@ -182,7 +178,81 @@ bool CClientConn::sendBin(const char* pData, size_t uSize)
 	}
 }
 
-void CClientConn::cbEvent(int revents)
+void CClientConn::__noblock()
+{
+	int nFlags = fcntl(m_fd, F_GETFL);
+	if (nFlags == -1)
+		throw exception_errno( toString("[CListenConn::%s] fcntl(%d, F_GETFL) failed!", __FUNCTION__, m_fd) );
+
+	nFlags |= O_NONBLOCK;
+
+	int nRet = fcntl(m_fd, F_SETFL, nFlags);
+	if (nRet == -1)
+		throw exception_errno( toString("[CListenConn::%s] fcntl(%d, F_SETFL) failed!", __FUNCTION__, m_fd) );
+}
+
+void CClientConn::__nodelay()
+{
+	int uFlag = 1;
+	setsockopt(m_fd, IPPROTO_TCP, TCP_NODELAY, &uFlag, sizeof(int));
+}
+
+// 接收数据超时控制
+
+void CClientConn::__initTimerNoData()
+{
+	float fTimeout = DEF_CONN_TIMEOUT;
+	if (CEnv::getThreadEnv()->getEVParam().uConnTimeout != (uint32_t)-1)
+	{
+		fTimeout = CEnv::getThreadEnv()->getEVParam().uConnTimeout;
+	}
+
+	m_timerNoData.init(this);
+	m_timerNoData.start(fTimeout * 1000);
+}
+
+void CClientConn::__destroyTimerNoData()
+{
+	m_timerNoData.stop();
+}
+
+void CClientConn::__updateTimerNoData()
+{
+	m_timerNoData.refresh();
+}
+
+// 接收数据超时
+bool CClientConn::__cbTimerNoData()
+{
+	LOG(Info, "[CClientConn::%s] fd:[%d] peer:[%s:%u] timeout", __FUNCTION__, m_fd, m_strPeerIp.c_str(), m_uPeerPort16);
+
+	__willFreeMyself("timeout");
+	return true;
+}
+
+// 延迟销毁对象
+
+void CClientConn::__initTimerDestry()
+{
+	m_timerDestry.init(this);
+	m_timerDestry.start(100);
+}
+
+void CClientConn::__destroyTimerDestry()
+{
+	m_timerDestry.stop();
+}
+
+bool CClientConn::__cbTimerDestry()
+{
+	LOG(Info, "[CClientConn::%s] fd:[%d] peer:[%s:%u] destroy", __FUNCTION__, m_fd, m_strPeerIp.c_str(), m_uPeerPort16);
+
+	__willFreeMyself("destroy");
+	return true;
+}
+
+// IO事件回调
+void CClientConn::__cbEvent(int revents)
 {
 	try
 	{
@@ -204,103 +274,8 @@ void CClientConn::cbEvent(int revents)
 	{
 		LOG(Error, "[CClientConn::%s] catch exception:[%s], connection immediate free!", __FUNCTION__, e.what());
 
-		__willFreeMyself( e.what() );
+		__willFreeMyself(e.what());
 	}
-}
-
-void CClientConn::__noblock()
-{
-	int nFlags = fcntl(m_fd, F_GETFL);
-	if (nFlags == -1)
-		throw exception_errno( toString("[CListenConn::%s] fcntl(%d, F_GETFL) failed!", __FUNCTION__, m_fd) );
-
-	nFlags |= O_NONBLOCK;
-
-	int nRet = fcntl(m_fd, F_SETFL, nFlags);
-	if (nRet == -1)
-		throw exception_errno( toString("[CListenConn::%s] fcntl(%d, F_SETFL) failed!", __FUNCTION__, m_fd) );
-}
-
-void CClientConn::__nodelay()
-{
-	int uFlag = 1;
-	setsockopt(m_fd, IPPROTO_TCP, TCP_NODELAY, &uFlag, sizeof(int));
-}
-
-void CClientConn::__initTimerNoData()
-{
-	if (m_bTimerNoDataStart)
-		return;
-
-	float fTimeout = DEF_CONN_TIMEOUT;
-	if (CEnv::getThreadEnv()->getEVParam().uConnTimeout != (uint32_t)-1)
-	{
-		fTimeout = CEnv::getThreadEnv()->getEVParam().uConnTimeout;
-	}
-
-	m_evTimerNoData.data = this;
-	ev_timer_init(&m_evTimerNoData, CClientConn::__cbTimerNoData, fTimeout, fTimeout);
-	ev_timer_start(CEnv::getThreadEnv()->getEVLoop()->getEvLoop(), &m_evTimerNoData);
-
-	m_bTimerNoDataStart = true;
-}
-
-void CClientConn::__destroyTimerNoData()
-{
-	if (!m_bTimerNoDataStart)
-		return;
-
-	ev_timer_stop(CEnv::getThreadEnv()->getEVLoop()->getEvLoop(), &m_evTimerNoData);
-
-	m_bTimerNoDataStart = false;
-}
-
-void CClientConn::__updateTimerNoData()
-{
-	if (!m_bTimerNoDataStart)
-		return;
-
-	ev_timer_again(CEnv::getThreadEnv()->getEVLoop()->getEvLoop(), &m_evTimerNoData);
-}
-
-void CClientConn::__cbTimerNoData(struct ev_loop *loop, struct ev_timer *w, int revents)
-{
-	CClientConn* pThis = (CClientConn*)w->data;
-
-	LOG(Info, "[CClientConn::%s] fd:[%d] peer:[%s:%u] timeout", __FUNCTION__, pThis->m_fd, pThis->m_strPeerIp.c_str(), pThis->m_uPeerPort16);
-
-	pThis->__willFreeMyself( "timeout" );
-}
-
-void CClientConn::__initTimerDestry()
-{
-	if (m_bTimerDestroyStart)
-		return;
-
-	m_evTimerDestroy.data = this;
-	ev_timer_init(&m_evTimerDestroy, CClientConn::__cbTimerDestry, 0.1, 0);
-	ev_timer_start(CEnv::getThreadEnv()->getEVLoop()->getEvLoop(), &m_evTimerDestroy);
-
-	m_bTimerDestroyStart = true;
-}
-
-void CClientConn::__destroyTimerDestry()
-{
-	if (!m_bTimerDestroyStart)
-		return;
-
-	ev_timer_stop(CEnv::getThreadEnv()->getEVLoop()->getEvLoop(), &m_evTimerDestroy);
-
-	m_bTimerDestroyStart = false;
-}
-
-void CClientConn::__cbTimerDestry(struct ev_loop *loop, struct ev_timer *w, int revents)
-{
-	CClientConn* pThis = (CClientConn*)w->data;
-
-	LOG(Info, "[CClientConn::%s] fd:[%d] peer:[%s:%u] destroy", __FUNCTION__, pThis->m_fd, pThis->m_strPeerIp.c_str(), pThis->m_uPeerPort16);
-
-	pThis->__willFreeMyself( "destroy" );
 }
 
 // 读取数据

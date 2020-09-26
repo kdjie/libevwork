@@ -155,6 +155,7 @@ SRC_FILES   = $(wildcard *.cpp dsmfc/*.cpp) <br>
 
 ```
 #include "libevwork/EVWork.h"
+#include "libevwork/ListenConn.h"
 
 using namespace evwork;
 
@@ -209,8 +210,8 @@ int main(int argc, char* argv[])
 ```
 
 编译，执行命令：<br>
-g++ -o SimpleEcho SimpleEcho.cpp -I.. -L../libevwork -levwork -lev -lboost_thread <br>
-这里 -I.. -L../libevwork 表示设置头文件和库文件的搜索路径。<br>
+g++ -o SimpleEcho SimpleEcho.cpp -I../../.. -L../../../libevwork -levwork -lev -lboost_thread <br>
+这里 -I../../.. -L../../../libevwork 表示设置头文件和库文件的搜索路径。<br>
 
 测试，启动服务：<br>
 [kdjie@localhost test.d]$ ./SimpleEcho <br>
@@ -226,6 +227,7 @@ hello,world <br>
 
 ```
 #include "libevwork/EVWork.h" 
+#include "libevwork/ListenConn.h"
 
 #include "libevwork/jsmfc/FormDef.h"
 #include "libevwork/jsmfc/Sender.h"
@@ -339,13 +341,13 @@ int main(int argc, char* argv[])
 ```
 
 编译，执行命令：<br>
-g++ -o SimpleJsonEcho SimpleJsonEcho.cpp -I.. -L../libevwork -levwork -lev -lboost_thread -ljsoncpp <br>
+g++ -o SimpleJsonEcho SimpleJsonEcho.cpp -I../../.. -L../../../libevwork -levwork -lev -lboost_thread -ljsoncpp <br>
 
 测试，启动服务：<br>
 [kdjie@localhost test.d]$ ./SimpleJsonEcho <br>
 
 客户端见samples/SimpleJsonEcho下的源码文件JsonClient.cpp，编译：<br>
-g++ -o JsonClient JsonClient.cpp -I.. -L../libevwork -levwork -lev -lboost_thread -ljsoncpp <br>
+g++ -o JsonClient JsonClient.cpp -I../../.. -L../../../libevwork -levwork -lev -lboost_thread -ljsoncpp <br>
 启动：<br>
 [kdjie@localhost test.d]$ ./JsonClient <br>
 [CEchoSender::__SenderFunc] send -> {"hello":",world!"} <br>
@@ -575,7 +577,7 @@ namespace evwork
 		void setHandle(IHandle* p);
 		void delHandle(IHandle* p);
 
-		struct ev_loop* getEvLoop();
+		struct ev_loop* getLoop();
 
 	private:
 		struct ev_loop* m_pEVLoop;

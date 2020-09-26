@@ -91,7 +91,7 @@ void CAsyncDataHandler::__requestDispatch(Request& request, evwork::IConn* pConn
 	}
 }
 
-bool CAsyncDataHandler::__onHandlerPrint()
+bool CAsyncDataHandler::__cbTimerPrint()
 {
 	LOG(Notice, "[pb::CDataHandler::%s] request:%u proc:%u bytes:%llu", __FUNCTION__, m_requestQueue.size(), m_uProc, m_uBytes64);
 

@@ -52,7 +52,7 @@ namespace evwork
 
 		void __cbFlush(int revents);
 		void __onRead();
-		bool __onHandlerFlush();
+		bool __cbTimerFlush();
 
 		CThreadWriter* __getThreadWriter();
 		void __flushReal();
@@ -62,7 +62,7 @@ namespace evwork
 		bool m_bFlushing;
 
 		THandle<CAsyncWriter, &CAsyncWriter::__cbFlush> m_hFlush;
-		TimerHandler<CAsyncWriter, &CAsyncWriter::__onHandlerFlush> m_timerFlush;
+		TimerHandler<CAsyncWriter, &CAsyncWriter::__cbTimerFlush> m_timerFlush;
 
 		boost::thread_specific_ptr<CThreadWriter> m_tssThreadWriter;
 

@@ -1,4 +1,5 @@
 ﻿#include "libevwork/EVWork.h"
+#include "libevwork/ListenConn.h"
 
 #include "libevwork/TimerHandler.h"
 #include "libevwork/jsmfc/FormDef.h"

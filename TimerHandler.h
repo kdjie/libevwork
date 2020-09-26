@@ -10,24 +10,18 @@
 
 #include "EVWork.h"
 
-template <typename T>
-struct bind_func
-{
-	typedef bool (T::*callback)();
-};
-
-template<typename T, typename bind_func<T>::callback ptr>
+template<typename T, bool (T::*callback)()>
 class TimerHandler
 {
 public:
 	TimerHandler()
 	{
-		_x = NULL;
+		m_pObj = NULL;
 		m_bStart = false;
 	}
-	TimerHandler(T* x)
+	TimerHandler(T* pObj)
 	{
-		_x = x;
+		m_pObj = pObj;
 		m_bStart = false;
 	}
 	virtual ~TimerHandler()
@@ -35,23 +29,23 @@ public:
 		stop();
 	}
 
-	void init(T* x)
+	void init(T* pObj)
 	{
-		_x = x;
+		m_pObj = pObj;
 	}
 
-	void start(uint32_t timeout)
+	void start(uint32_t uTimeoutMs)
 	{
-		if (m_bStart)
-			return;
+		if (!m_bStart)
+		{
+			using namespace evwork;
 
-		using namespace evwork;
-		
-		m_evTimer.data = this;
-		ev_timer_init(&m_evTimer, TimerHandler::__cbTimer, timeout/(float)1000, timeout/(float)1000);
-		ev_timer_start(CEnv::getThreadEnv()->getEVLoop()->getEvLoop(), &m_evTimer);
+			m_evTimer.data = this;
+			ev_timer_init(&m_evTimer, TimerHandler::__cbTimer, uTimeoutMs / (float)1000, uTimeoutMs / (float)1000);
+			ev_timer_start(CEnv::getThreadEnv()->getEVLoop()->getLoop(), &m_evTimer);
 
-		m_bStart = true;
+			m_bStart = true;
+		}
 	}
 
 	void stop()
@@ -60,16 +54,26 @@ public:
 		{
 			using namespace evwork;
 
-			ev_timer_stop(CEnv::getThreadEnv()->getEVLoop()->getEvLoop(), &m_evTimer);
+			ev_timer_stop(CEnv::getThreadEnv()->getEVLoop()->getLoop(), &m_evTimer);
 			m_bStart = false;
+		}
+	}
+
+	void refresh()
+	{
+		if (m_bStart)
+		{
+			using namespace evwork;
+
+			ev_timer_again(CEnv::getThreadEnv()->getEVLoop()->getLoop(), &m_evTimer);
 		}
 	}
 
 	void onTimer()
 	{
-		if (_x) 
+		if (m_pObj)
 		{		
-			if (!(_x->*ptr)()) 
+			if (!(m_pObj->*callback)())
 			{
 				stop();
 			}
@@ -86,7 +90,7 @@ private:
 	}
 
 protected:
-	T* _x;
+	T* m_pObj;
 
 	ev_timer m_evTimer;
 	bool m_bStart;

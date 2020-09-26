@@ -111,7 +111,7 @@ namespace pb
 		virtual void __makeRequest(const char *pPacket, uint32_t uPktLen, evwork::IConn* pConn);
 		virtual void __requestDispatch(Request& request, evwork::IConn* pConn);
 
-		virtual bool __onHandlerPrint();
+		virtual bool __cbTimerPrint();
 
 	private:
 

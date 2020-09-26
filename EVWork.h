@@ -10,8 +10,6 @@
 
 #include "EVComm.h"
 #include "Logger.h"
-#include "ListenConn.h"
-#include "ClientConn.h"
 #include "Writer.h"
 #include "ConnManager.h"
 

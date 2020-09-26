@@ -19,8 +19,6 @@ namespace evwork
 		CListenConn(uint16_t uListenPort, const std::string& strBindIp = "");
 		virtual ~CListenConn();
 
-		void cbAccept(int revents);
-
 		void setSpecialDE(IDataEvent* pDE);
 
 	private:
@@ -31,13 +29,15 @@ namespace evwork
 		void __bind();
 		void __listen();
 
+		void __cbAccept(int revents);
+
 	private:
 		uint16_t m_uListenPort;
 		std::string m_strBindIp;
 
 		int m_fd;
 
-		THandle<CListenConn, &CListenConn::cbAccept> m_hAccept;
+		THandle<CListenConn, &CListenConn::__cbAccept> m_hAccept;
 
 		IDataEvent* m_pDE_Special;
 	};

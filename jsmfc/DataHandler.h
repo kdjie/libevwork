@@ -33,14 +33,14 @@ namespace js
 		virtual void __makeRequest(const char *pPacket, uint32_t uPktLen, evwork::IConn* pConn);
 		virtual void __requestDispatch(Request& request, evwork::IConn* pConn);
 
-		virtual bool __onHandlerPrint();
+		virtual bool __cbTimerPrint();
 
 	protected:
 		uint32_t m_uProc;
 		uint64_t m_uBytes64;
 		uint32_t m_uPacketLimit;
 
-		TimerHandler<CDataHandler, &CDataHandler::__onHandlerPrint> m_timerPrint;
+		TimerHandler<CDataHandler, &CDataHandler::__cbTimerPrint> m_timerPrint;
 	};
 
 }

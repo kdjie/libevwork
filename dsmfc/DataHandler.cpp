@@ -100,7 +100,7 @@ void CDataHandler::__requestDispatch(Request& request, evwork::IConn* pConn)
 	}
 }
 
-bool CDataHandler::__onHandlerPrint()
+bool CDataHandler::__cbTimerPrint()
 {
 	LOG(Notice, "[ds::CDataHandler::%s] proc:%u bytes:%llu", __FUNCTION__, m_uProc, m_uBytes64);
 

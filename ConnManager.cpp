@@ -9,6 +9,7 @@
 #include "ConnManager.h"
 
 #include "EVWork.h"
+#include "ClientConn.h"
 
 using namespace evwork;
 

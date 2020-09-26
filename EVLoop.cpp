@@ -7,7 +7,6 @@
 //============================================================================
 
 #include "EVComm.h"
-#include "EVWork.h"
 
 using namespace evwork;
 
@@ -24,7 +23,6 @@ bool CEVLoop::init()
 {
 	if (m_pEVLoop == NULL)
 	{
-		//m_pEVLoop = ev_default_loop(0);
 		m_pEVLoop = ev_loop_new(EVBACKEND_EPOLL);
 	}
 
@@ -73,7 +71,7 @@ void CEVLoop::delHandle(IHandle* p)
 	m_setHandle.erase(p);
 }
 
-struct ev_loop* CEVLoop::getEvLoop()
+struct ev_loop* CEVLoop::getLoop()
 {
 	return m_pEVLoop;
 }

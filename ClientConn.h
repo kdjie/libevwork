@@ -10,6 +10,7 @@
 
 #include "EVComm.h"
 #include "Buffer.h"
+#include "TimerHandler.h"
 
 namespace evwork
 {
@@ -25,8 +26,6 @@ namespace evwork
 		virtual void getPeerInfo(std::string& strPeerIp, uint16_t& uPeerPort16);
 		virtual bool sendBin(const char* pData, size_t uSize);
 
-		void cbEvent(int revents);
-
 		void setSpecialDE(IDataEvent* pDE);
 
 		// 读写事件控制（慎用）
@@ -38,15 +37,19 @@ namespace evwork
 		void __noblock();
 		void __nodelay();
 
-		// 定时器控制
+		// 接收数据超时控制
 		void __initTimerNoData();
 		void __destroyTimerNoData();
 		void __updateTimerNoData();
-		static void __cbTimerNoData(struct ev_loop *loop, struct ev_timer *w, int revents);
+		bool __cbTimerNoData();
 
+		// 延迟销毁对象
 		void __initTimerDestry();
 		void __destroyTimerDestry();
-		static void __cbTimerDestry(struct ev_loop *loop, struct ev_timer *w, int revents);
+		bool __cbTimerDestry();
+
+		// IO事件回调
+		void __cbEvent(int revents);
 
 		// 读取数据
 		void __onRead();
@@ -78,13 +81,11 @@ namespace evwork
 		CBuffer m_Input;
 		CBuffer m_Output;
 
-		ev_timer m_evTimerNoData;
-		ev_timer m_evTimerDestroy;
-		bool m_bTimerNoDataStart;
-		bool m_bTimerDestroyStart;
+		THandle<CClientConn, &CClientConn::__cbEvent> m_hRead;
+		THandle<CClientConn, &CClientConn::__cbEvent> m_hWrite;
 
-		THandle<CClientConn, &CClientConn::cbEvent> m_hRead;
-		THandle<CClientConn, &CClientConn::cbEvent> m_hWrite;
+		TimerHandler<CClientConn, &CClientConn::__cbTimerNoData> m_timerNoData;
+		TimerHandler<CClientConn, &CClientConn::__cbTimerDestry> m_timerDestry;
 
 		IDataEvent* m_pDE_Special;
 	};

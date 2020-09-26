@@ -139,7 +139,7 @@ namespace evwork
 		void setHandle(IHandle* p);
 		void delHandle(IHandle* p);
 
-		struct ev_loop* getEvLoop();
+		struct ev_loop* getLoop();
 
 	private:
 		struct ev_loop* m_pEVLoop;
